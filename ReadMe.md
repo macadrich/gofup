@@ -17,7 +17,7 @@ An example that demonstrate client and server for uploading and receiving file v
     * run as server `docker run -p 8080:8081 gofup recv`
     * run as client `docker run -p 8080:8081 gofup send`
 
-How It Works?
+## How It Works?
     * Client
         * On initiate client side, client will hash all the file listed in directory `myfile` and send it to a server. list of Hash file will use in server side to make sure that it received the exact file uploaded by client.
         * Client send a chunk of bytes to the server for uploading process. 
