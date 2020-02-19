@@ -8,6 +8,8 @@ RUN mkdir /go/src/gofup
 # Copy the local package files to the container's workspace.
 ADD . /go/src/gofup
 
+ADD . /go
+
 # set workspace
 WORKDIR /go/src/gofup
 
@@ -15,5 +17,9 @@ WORKDIR /go/src/gofup
 RUN go install /go/src/gofup/cli
 
 ENTRYPOINT ["/go/bin/cli"]
-# act as a server (receiver)
-# CMD ["/go/bin/cli"] 
+#CMD [ "/go/bin/cli" ]
+
+EXPOSE 15223
+
+# VOLUME [ "/go/src/gofup/myfile" ]
+# enable to access container

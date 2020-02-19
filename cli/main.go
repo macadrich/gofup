@@ -1,9 +1,12 @@
 package main
 
 import (
-	"gofup/upload"
+	"gofup/fhandler"
 	"log"
+	"net"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 const (
@@ -14,15 +17,38 @@ const (
 	CLIENT  = "send"    // send a file
 )
 
+func getLocalIP() string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, address := range addrs {
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
+	return ""
+}
+
 func main() {
-	if len(os.Args) <= 1 || len(os.Args) > 2 {
-		log.Println("Commands:")
-		log.Println("	send - As client")
-		log.Println("	recv - As server")
+
+	checkArgs := func(args []string) bool {
+		if len(args) <= 2 || len(args) > 3 {
+			log.Println("Commands:")
+			log.Println("   send | recv ")
+			log.Println("   path - file folder")
+			return false
+		}
+		return true
+	}
+
+	if !checkArgs(os.Args) {
 		return
 	}
 
-	app, err := upload.NewFUpload(FILEDIR, ADDRESS+":"+PORT)
+	app, err := fhandler.NewFUpload(ADDRESS + ":" + PORT)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,6 +56,7 @@ func main() {
 	switch os.Args[1] {
 	case CLIENT:
 		log.Println("[ CLIENT ] >>> ")
+		app.SetFileFolder(os.Args[2])
 		err := app.Send()
 		if err != nil {
 			log.Fatal(err)
@@ -37,6 +64,7 @@ func main() {
 		return
 	case SERVER:
 		log.Println("[ SERVER ] <<<")
+		app.SetFileFolder(os.Args[2])
 		err := app.Receive()
 		if err != nil {
 			log.Fatal(err)
@@ -45,5 +73,9 @@ func main() {
 	default:
 		log.Println("Unknown!")
 	}
+
+	exit := make(chan os.Signal)
+	signal.Notify(exit, syscall.SIGINT, syscall.SIGTERM)
+	log.Println(<-exit)
 
 }

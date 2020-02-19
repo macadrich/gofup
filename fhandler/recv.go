@@ -1,4 +1,4 @@
-package upload
+package fhandler
 
 import (
 	"encoding/json"
@@ -10,30 +10,27 @@ import (
 )
 
 // Receive wait to receive file from client
-func (u *Upload) Receive() error {
-	log.Println("listening on: ", u.Address)
+func (u *FileHandler) Receive() error {
+	log.Println("listening on: ", u.Address, u.FileFolder)
 	conn, err := net.Listen("tcp", u.Address)
 	if err != nil {
 		return err
 	}
 
-	files, err := CHashFile(u.Dir)
+	files, err := CHashFile(u.FileFolder)
 	if err != nil {
 		return err
 	}
 
 	log.Println("waiting for connection...")
-
 	for {
 		s, err := conn.Accept()
 		if err != nil {
 			return err
 		}
 
-		go handleConn(s, files, u.Dir)
+		go handleConn(s, files, u.FileFolder)
 	}
-
-	return nil
 }
 
 func handleConn(server net.Conn, files []File, dir string) {
@@ -67,7 +64,8 @@ func handleConn(server net.Conn, files []File, dir string) {
 			log.Println(err)
 		}
 
-		fi, err := os.Create(filepath.Join(dir, a.Name))
+		writeTo := filepath.Join(dir, a.Name)
+		fi, err := os.Create(writeTo)
 		if err != nil {
 			log.Println(err)
 		}
@@ -80,6 +78,11 @@ func handleConn(server net.Conn, files []File, dir string) {
 				io.CopyN(fi, server, (a.Size - receivedBytes))
 				server.Read(make([]byte, (receivedBytes+BUFFERSIZE)-a.Size))
 				log.Println("Received:", a.Name, receivedBytes)
+
+				err = ListDir(dir)
+				if err != nil {
+					log.Println(err)
+				}
 				break
 			}
 			io.CopyN(fi, server, BUFFERSIZE)

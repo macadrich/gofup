@@ -8,14 +8,14 @@ An example that demonstrate client and server for uploading and receiving file v
         * To build a client, In /gofup folder, build a client app using command `go build -o client cli/main.go`
         * Copy the client app to your prefered location folder (e.g Desktop)
         * Create a folder `myfile` and put some files that you want to upload in server
-        * Run a client using command `./client send`
+        * Run a client using command `./client send myfile`
     * Server
         * In /gofup folder, you can run directly using command `go run cli/main.go recv`
         * Make sure myfile folder exist on the same directory.
 
 ## Using Docker
-    * run as server `docker run -p 8080:8081 gofup recv`
-    * run as client `docker run -p 8080:8081 gofup send`
+    * run as server `docker run -p 15223:15223 gofup recv myfile`
+    * run as client `docker run gofup send myfile`
 
 How It Works?
     * Client

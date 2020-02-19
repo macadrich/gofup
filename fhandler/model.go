@@ -1,4 +1,4 @@
-package upload
+package fhandler
 
 // File represents file details
 type File struct {

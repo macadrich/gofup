@@ -1,4 +1,4 @@
-package upload
+package fhandler
 
 import (
 	"encoding/json"
@@ -11,25 +11,30 @@ import (
 )
 
 // Send connect to server and upload file
-func (u *Upload) Send() error {
+func (u *FileHandler) Send() error {
+	log.Println("Folder:", u.FileFolder, "Address:", u.Address)
 	server, err := net.Dial("tcp", u.Address)
 	if err != nil {
 		return err
 	}
 	defer server.Close()
 
-	files, err := CHashFile(u.Dir)
+	log.Println("Connected.")
+
+	files, err := CHashFile(u.FileFolder)
 	if err != nil {
 		return err
 	}
 
 	filesInByte, err := json.Marshal(files)
 	if err != nil {
+		log.Println("File in bytes:", err)
 		return err
 	}
 
 	_, err = server.Write(filesInByte)
 	if err != nil {
+		log.Println("write server :", err)
 		return err
 	}
 
@@ -38,7 +43,7 @@ func (u *Upload) Send() error {
 		var req File
 		// decode to File object (from fdec buffering)
 		if err := fdec.Decode(&req); err != nil {
-			return err
+			return errors.New("Decoding error: EOF")
 		}
 
 		// check if no files found in (fdec buffering)
@@ -60,7 +65,7 @@ func (u *Upload) Send() error {
 		}
 
 		log.Println("sending: ", req.Name)
-		fi, err := os.Open(filepath.Join(u.Dir, req.Name)) // get specific path file name
+		fi, err := os.Open(filepath.Join(u.FileFolder, req.Name)) // get specific path file name
 		if err != nil {
 			return err
 		}
@@ -82,6 +87,4 @@ func (u *Upload) Send() error {
 			log.Println("File has been sent!")
 		}(server, bytechunk)
 	}
-
-	return nil
 }

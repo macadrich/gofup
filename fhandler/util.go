@@ -1,10 +1,11 @@
-package upload
+package fhandler
 
 import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -51,4 +52,25 @@ func CHashFile(dir string) ([]File, error) {
 	}
 
 	return out, nil
+}
+
+// ListDir -
+func ListDir(folder string) error {
+	dir, err := os.Open(folder)
+	if err != nil {
+		return err
+	}
+
+	names, err := dir.Readdirnames(-1)
+	if err != nil {
+		return err
+	}
+
+	log.Println(folder, "--------------")
+	for _, nm := range names {
+		log.Println("\t", nm)
+	}
+	log.Println("--------------")
+
+	return nil
 }
