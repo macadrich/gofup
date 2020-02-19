@@ -12,7 +12,7 @@ file via TCP Protocol, Also, it can handle multiple upload file from client
         * Create a folder `myfile` and put some files that you want to upload in server
         * Run a client using command `./client send myfile`
     * Server
-        * In /gofup folder, you can run directly using command `go run cli/main.go recv`
+        * In /gofup folder, you can run directly using command `go run cli/main.go recv myfile`
         * Make sure myfile folder exist on the same directory.
 
 ## Using Docker
