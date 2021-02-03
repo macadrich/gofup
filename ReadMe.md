@@ -1,5 +1,5 @@
 # Send and receive file 
-## Objective is to ccelerate upload large files
+## Objective is to accelerate upload large files
 
 An example that demonstrate client and server for uploading and receiving 
 file via TCP Protocol, Also, it can handle multiple upload file from client
